@@ -10,7 +10,7 @@ fn iterator(c: Complex) -> bool {
         z = mandelbrot(z, c);
         //println!("{:?}", z);
     }
-    if z.abs() <= 3f64 {
+    if z.abs() <= 1f64 {
         return true;
     }
     return false;
@@ -23,7 +23,8 @@ fn main() {
             if iterator(number) {
                 print!("\x1b[44m   \x1b[0m");
             } else {
-                print!("\x1b[41m   \x1b[0m");
+                //print!("\x1b[41m   \x1b[0m");
+                print!("   ");
             }
         }
         print!("\n");
