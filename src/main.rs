@@ -1,43 +1,72 @@
 use ccmath::CC;
 use sap::{Argument, Parser};
+use std::time::Instant;
+
+// A fractal is defined by its function and its clause
+#[derive(Clone, Copy)]
+pub struct Fractal {
+    pub function: fn(CC<f64>, CC<f64>) -> CC<f64>,
+    pub clause: fn(CC<f64>) -> bool,
+}
 
 struct Args {
+    fractal: Fractal,
     real_start: f64,
     real_end: f64,
     complex_start: f64,
     complex_end: f64,
     resolution: i64,
+    debug: bool,
 }
 
-#[allow(dead_code)]
-fn mandelbrot_iterator(c: CC<f64>) -> bool {
+fn iterator(c: CC<f64>, fractal: Fractal) -> bool {
     let mut z = c;
     for _ in 1..=36 {
-        z = z.powi(2) + c;
+        z = (fractal.function)(z, c);
     }
-    z.abs() <= 3f64
-}
-
-fn julia_iterator(c: CC<f64>) -> bool {
-    let mut z = c;
-    for _ in 1..=36 {
-        z = CC::cos(z);
-    }
-    (z - 0.739085133215160641655312087673).abs() <= 3f64
+    (fractal.clause)(z)
 }
 
 fn main() {
     let mut parser = Parser::from_env().unwrap();
     let mut args = Args {
+        fractal: Fractal {
+            function: |z, c| CC::arctanh(1f64 / z + 1f64 / c),
+            clause: |z| z.abs() <= 1f64,
+        },
         real_start: 0f64,
         real_end: 0f64,
         complex_start: 0f64,
         complex_end: 0f64,
         resolution: 1,
+        debug: false,
     };
 
     while let Some(arg) = parser.forward().unwrap() {
         match arg {
+            Argument::Long("fractal") => {
+                if let Some(fractal) = parser.value() {
+                    args.fractal = match fractal.as_str() {
+                        "mandelbrot" => Fractal {
+                            function: |z, c| z.powi(2) + c,
+                            clause: |z| z.abs() <= 3f64,
+                        },
+                        "mandelbrot-cubed" => Fractal {
+                            function: |z, c| z.powi(3) + c,
+                            clause: |z| z.abs() <= 3f64,
+                        },
+                        "julia" => Fractal {
+                            function: |z, c| CC::cos(z),
+                            clause: |z| z.abs() <= 3f64,
+                        },
+                        // This should never run but sure
+                        _ => Fractal {
+                            function: |z, c| z.powi(2) + c,
+                            clause: |z| z.abs() <= 3f64,
+                        },
+                    };
+                }
+            }
             Argument::Long("real-start") => {
                 if let Some(real_start) = parser.value() {
                     args.real_start = match real_start.parse::<f64>() {
@@ -78,8 +107,16 @@ fn main() {
                     };
                 }
             }
+            Argument::Short('d') => args.debug = true,
             _ => {}
         }
+    }
+
+    let now = Instant::now();
+
+    let mut empty_cell = "   ";
+    if args.debug {
+        empty_cell = "\x1b[41m   \x1b[0m"
     }
 
     let real_interval = ((args.real_start * args.resolution as f64) as i32)
@@ -90,12 +127,14 @@ fn main() {
     for complex in complex_interval {
         for real in real_interval.clone() {
             let number = CC::<f64>::new(real as f64, complex as f64) / (args.resolution as f64);
-            if julia_iterator(number) {
-                print!("\x1b[44m  \x1b[0m");
+            if iterator(number, args.fractal) {
+                print!("\x1b[44m   \x1b[0m");
             } else {
-                print!("  ");
+                print!("{}", empty_cell);
             }
         }
         println!();
     }
+
+    println!("Took {} micros", now.elapsed().as_micros());
 }
