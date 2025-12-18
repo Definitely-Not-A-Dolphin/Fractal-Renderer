@@ -7,10 +7,35 @@ name = "Fractal-Renderer"
 version = "0.1.0"
 dependencies = [
  "ccmath",
+ "sap",
 ]
 
 [[package]]
-name = "ccmath"
-version = "0.1.0"
+name = "autocfg"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d471486d04c02ba935841404b078bb2ff451c7b8666f2535ca27f2ccbfbdb4e"
+checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
+
+[[package]]
+name = "ccmath"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26b721904d150a60803cae14f6cac153ff3b50868cb884c6fbef11735d16b017"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
+name = "num-traits"
+version = "0.2.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
+dependencies = [
+ "autocfg",
+]
+
+[[package]]
+name = "sap"
+version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0396d175c482d7af9c821d7895255cbdbbde2a04f55c9f4bcbff66aed4f06811"
