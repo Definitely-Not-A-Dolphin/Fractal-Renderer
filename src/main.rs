@@ -3,12 +3,13 @@ use sap::{Argument, Parser};
 use std::time::Instant;
 
 // A fractal is defined by its function and its clause
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Fractal {
     pub function: fn(CC<f64>, CC<f64>) -> CC<f64>,
     pub clause: fn(CC<f64>) -> bool,
 }
 
+#[derive(Debug, Clone, Copy)]
 struct Args {
     fractal: Fractal,
     real_start: f64,
@@ -27,11 +28,46 @@ fn iterator(c: CC<f64>, fractal: Fractal) -> bool {
     (fractal.clause)(z)
 }
 
+fn fractal_matcher(fractal: String) -> Fractal {
+    match fractal.as_str() {
+        "mandelbrot" => Fractal {
+            function: |z, c| z.powi(2) + c,
+            clause: |z| z.abs() <= 3f64,
+        },
+        "mandelbrot-cubed" => Fractal {
+            function: |z, c| z.powi(3) + c,
+            clause: |z| z.abs() <= 3f64,
+        },
+        "julia" => Fractal {
+            function: |z, _| CC::cos(z),
+            clause: |z| z.abs() <= 3f64,
+        },
+        "bat" => Fractal {
+            function: |z, c| CC::arctanh(1f64 / z + 1f64 / c),
+            clause: |z| z.abs() <= 3f64,
+        },
+        "batstatic" => Fractal {
+            function: |z, _| CC::cot(1f64 - z.powi(2)),
+            clause: |z| z.abs() <= 1f64,
+        },
+        "spiral" => Fractal {
+            function: |z, _| CC::ln(1f64 + z.powi(2)),
+            clause: |z| z.abs() <= 1f64,
+        },
+        // This should never run but sure
+        _ => Fractal {
+            function: |z, c| CC::arctanh(1f64 / z + 1f64 / c),
+            clause: |z| z.abs() <= 1f64,
+        },
+    }
+}
+
 fn main() {
     let mut parser = Parser::from_env().unwrap();
     let mut args = Args {
         fractal: Fractal {
-            function: |z, c| CC::arctanh(1f64 / z + 1f64 / c),
+            #[allow(unused)]
+            function: |z, c| CC::cos(1f64 + CC::ln(z) - c),
             clause: |z| z.abs() <= 1f64,
         },
         real_start: 0f64,
@@ -46,25 +82,7 @@ fn main() {
         match arg {
             Argument::Long("fractal") => {
                 if let Some(fractal) = parser.value() {
-                    args.fractal = match fractal.as_str() {
-                        "mandelbrot" => Fractal {
-                            function: |z, c| z.powi(2) + c,
-                            clause: |z| z.abs() <= 3f64,
-                        },
-                        "mandelbrot-cubed" => Fractal {
-                            function: |z, c| z.powi(3) + c,
-                            clause: |z| z.abs() <= 3f64,
-                        },
-                        "julia" => Fractal {
-                            function: |z, c| CC::cos(z),
-                            clause: |z| z.abs() <= 3f64,
-                        },
-                        // This should never run but sure
-                        _ => Fractal {
-                            function: |z, c| z.powi(2) + c,
-                            clause: |z| z.abs() <= 3f64,
-                        },
-                    };
+                    args.fractal = fractal_matcher(fractal);
                 }
             }
             Argument::Long("real-start") => {
@@ -138,3 +156,4 @@ fn main() {
 
     println!("Took {} micros", now.elapsed().as_micros());
 }
+//nya :3
