@@ -67,7 +67,7 @@ fn main() {
     let mut args = Args {
         fractal: Fractal {
             #[allow(unused)]
-            function: |z, c| CC::cos(1f64 + CC::ln(z) - c),
+            function: |z, c| CC::powc(z, -z),
             clause: |z| z.abs() <= 1f64,
         },
         real_start: 0f64,
@@ -131,11 +131,11 @@ fn main() {
     }
 
     let now = Instant::now();
-
-    let mut empty_cell = "   ";
-    if args.debug {
-        empty_cell = "\x1b[41m   \x1b[0m"
-    }
+    let empty_cell = if args.debug {
+        "\x1b[41m   \x1b[0m"
+    } else {
+        "   "
+    };
 
     let real_interval = ((args.real_start * args.resolution as f64) as i32)
         ..=((args.real_end * args.resolution as f64) as i32);
@@ -156,4 +156,4 @@ fn main() {
 
     println!("Took {} micros", now.elapsed().as_micros());
 }
-//nya :3
+// nya :3
