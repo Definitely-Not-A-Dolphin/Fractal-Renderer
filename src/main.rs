@@ -62,15 +62,7 @@ fn fractal_matcher(fractal: String) -> Fractal {
             function: |z, _| CC::cos(z),
             clause: |z| z.abs() <= 3f64,
         },
-        "bat" => Fractal {
-            function: |z, c| CC::arctanh(1f64 / z + 1f64 / c),
-            clause: |z| z.abs() <= 3f64,
-        },
-        "batstatic" => Fractal {
-            function: |z, _| CC::cot(1f64 - z.powi(2)),
-            clause: |z| z.abs() <= 1f64,
-        },
-        "spiral" => Fractal {
+        "spirals" => Fractal {
             function: |z, _| CC::ln(1f64 + z.powi(2)),
             clause: |z| z.abs() <= 1f64,
         },
@@ -78,7 +70,14 @@ fn fractal_matcher(fractal: String) -> Fractal {
             function: |z, _| CC::powc(z, 1f64 - z),
             clause: |z| z.abs() <= 1f64,
         },
-        // This should never run but sure
+        "singularity" => Fractal {
+            function: |z, c| CC::exp(c.powi(2) + z.powi(2)),
+            clause: |z| z.abs() <= 1f64,
+        },
+        "singularity-cubed" => Fractal {
+            function: |z, c| CC::exp(c.powi(3) + z.powi(3)),
+            clause: |z| z.abs() <= 1f64,
+        },
         _ => Fractal {
             function: |z, c| CC::arctanh(1f64 / z + 1f64 / c),
             clause: |z| z.abs() <= 1f64,
@@ -91,7 +90,7 @@ fn main() {
     let mut args = Args {
         fractal: Fractal {
             #[allow(unused)]
-            function: |z, c| CC::cos(CC::sqrt(1f64 + z.powi(2))),
+            function: |z, c| CC::exp(c.powi(3) + z.powi(3)),
             clause: |z| z.abs() <= 1f64,
         },
         real_start: 0f64,

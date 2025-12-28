@@ -18,9 +18,9 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
 name = "ccmath"
-version = "0.2.2"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26b721904d150a60803cae14f6cac153ff3b50868cb884c6fbef11735d16b017"
+checksum = "ef45f1624a1415f8a78645a4119f4cf4e83667109fd5ec5030990da0fbd19f46"
 dependencies = [
  "num-traits",
 ]
