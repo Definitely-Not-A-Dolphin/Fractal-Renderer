@@ -3,49 +3,46 @@ use sap::{Argument, Parser};
 use std::time::Instant;
 
 // A fractal is defined by its function and its clause
-#[derive(Clone, Copy, Debug)]
 pub struct Fractal {
     pub function: fn(CC<f64>, CC<f64>) -> CC<f64>,
     pub clause: fn(CC<f64>) -> bool,
 }
 
-#[derive(Debug, Clone, Copy)]
 struct Args {
     fractal: Fractal,
     real_start: f64,
     real_end: f64,
     complex_start: f64,
     complex_end: f64,
+    iterations: u32,
     resolution: i64,
     debug: bool,
 }
 
-fn iterator(c: [CC<f64>; 2], fractal: Fractal, debug: bool) -> String {
-    let mut z0 = c[0];
-    let mut z1 = c[1];
+fn iterator(numbers: [CC<f64>; 2], fractal: &Fractal, debug: bool, iterations: u32) -> String {
+    let mut z0 = numbers[0];
+    let mut z1 = numbers[1];
 
-    for _ in 1..=36 {
-        z0 = (fractal.function)(z0, c[0]);
-        z1 = (fractal.function)(z1, c[1]);
+    for _ in 1..=iterations {
+        z0 = (fractal.function)(z0, numbers[0]);
+        z1 = (fractal.function)(z1, numbers[1]);
     }
 
-    let satisfies = [(fractal.clause)(z0), (fractal.clause)(z1)];
-
-    let mut strng = if satisfies[0] && satisfies[1] {
-        String::from("\x1b[34m█\x1b[0m")
-    } else if satisfies[0] {
-        String::from("\x1b[34m▀\x1b[0m")
-    } else if satisfies[1] {
-        String::from("\x1b[34m▄\x1b[0m")
+    let strng = if (fractal.clause)(z0) && (fractal.clause)(z1) {
+        "\x1b[34m█\x1b[0m"
+    } else if (fractal.clause)(z0) {
+        "\x1b[34m▀\x1b[0m"
+    } else if (fractal.clause)(z1) {
+        "\x1b[34m▄\x1b[0m"
     } else {
-        String::from(" ")
+        " "
     };
 
     if debug {
-        strng = String::from("\x1b[41m") + &strng + "\x1b[0m";
+        String::from("\x1b[41m") + strng + "\x1b[0m"
+    } else {
+        String::from(strng)
     }
-
-    strng
 }
 
 fn fractal_matcher(fractal: String) -> Fractal {
@@ -89,7 +86,6 @@ fn main() {
     let mut parser = Parser::from_env().unwrap();
     let mut args = Args {
         fractal: Fractal {
-            #[allow(unused)]
             function: |z, c| CC::exp(c.powi(3) + z.powi(3)),
             clause: |z| z.abs() <= 1f64,
         },
@@ -97,6 +93,7 @@ fn main() {
         real_end: 0f64,
         complex_start: 0f64,
         complex_end: 0f64,
+        iterations: 36u32,
         resolution: 1,
         debug: false,
     };
@@ -148,6 +145,14 @@ fn main() {
                     };
                 }
             }
+            Argument::Long("iterations") => {
+                if let Some(iterations) = parser.value() {
+                    args.iterations = match iterations.parse::<u32>() {
+                        Ok(iterations) => iterations,
+                        Err(e) => panic!("Invalid argument for resolution: {}", e),
+                    };
+                }
+            }
             Argument::Short('d') => args.debug = true,
             _ => {}
         }
@@ -165,7 +170,10 @@ fn main() {
                 CC::<f64>::new(real as f64, complex as f64) / args.resolution as f64,
                 CC::<f64>::new(real as f64, (complex + 1) as f64) / args.resolution as f64,
             ];
-            print!("{}", iterator(numbers, args.fractal, args.debug))
+            print!(
+                "{}",
+                iterator(numbers, &args.fractal, args.debug, args.iterations)
+            )
         }
         println!();
     }
