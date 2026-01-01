@@ -20,19 +20,21 @@ struct Args {
 }
 
 fn iterator(numbers: [CC<f64>; 2], fractal: &Fractal, debug: bool, iterations: u32) -> String {
-    let mut z0 = numbers[0];
-    let mut z1 = numbers[1];
+    let [c0, c1] = numbers;
+    let [mut z0, mut z1] = numbers;
 
     for _ in 1..=iterations {
-        z0 = (fractal.function)(z0, numbers[0]);
-        z1 = (fractal.function)(z1, numbers[1]);
+        z0 = (fractal.function)(z0, c0);
+        z1 = (fractal.function)(z1, c1);
     }
 
-    let strng = if (fractal.clause)(z0, numbers[0]) && (fractal.clause)(z1, numbers[1]) {
+    let (satisfies0, satisfies1) = ((fractal.clause)(z0, c0), (fractal.clause)(z1, c1));
+
+    let strng = if satisfies0 && satisfies1 {
         "\x1b[34m█\x1b[0m"
-    } else if (fractal.clause)(z0, numbers[0]) {
+    } else if satisfies0 {
         "\x1b[34m▀\x1b[0m"
-    } else if (fractal.clause)(z1, numbers[1]) {
+    } else if satisfies1 {
         "\x1b[34m▄\x1b[0m"
     } else {
         " "
@@ -121,18 +123,18 @@ fn main() {
                     };
                 }
             }
-            Argument::Long("complex-start") => {
-                if let Some(complex_start) = parser.value() {
-                    args.imaginary_start = match complex_start.parse::<f64>() {
-                        Ok(complex_start) => complex_start,
+            Argument::Long("imaginary-start") => {
+                if let Some(imaginary_start) = parser.value() {
+                    args.imaginary_start = match imaginary_start.parse::<f64>() {
+                        Ok(imaginary_start) => imaginary_start,
                         Err(e) => panic!("Invalid argument for complex_start: {}", e),
                     };
                 }
             }
-            Argument::Long("complex-end") => {
-                if let Some(complex_end) = parser.value() {
-                    args.imaginary_end = match complex_end.parse::<f64>() {
-                        Ok(complex_end) => complex_end,
+            Argument::Long("imaginary-end") => {
+                if let Some(imaginary_end) = parser.value() {
+                    args.imaginary_end = match imaginary_end.parse::<f64>() {
+                        Ok(imaginary_end) => imaginary_end,
                         Err(e) => panic!("Invalid argument for complex_end: {}", e),
                     };
                 }
@@ -164,19 +166,22 @@ fn main() {
     let imaginary_interval = ((-args.imaginary_end * args.resolution as f64) as i32)
         ..=((-args.imaginary_start * args.resolution as f64) as i32);
 
-    for complex in imaginary_interval.step_by(2) {
+    for imaginary in imaginary_interval.step_by(2) {
         for real in real_interval.clone() {
             let real_f64 = real as f64;
-            let complex_f64 = complex as f64;
+            let imaginary_f64 = imaginary as f64;
             let resolution_f64 = args.resolution as f64;
-
-            let numbers = [
-                CC::<f64>::new(real_f64, complex_f64) / resolution_f64,
-                CC::<f64>::new(real_f64, complex_f64 + 1f64) / resolution_f64,
-            ];
             print!(
                 "{}",
-                iterator(numbers, &args.fractal, args.debug, args.iterations)
+                iterator(
+                    [
+                        CC::<f64>::new(real_f64, imaginary_f64) / resolution_f64,
+                        CC::<f64>::new(real_f64, imaginary_f64 + 1f64) / resolution_f64,
+                    ],
+                    &args.fractal,
+                    args.debug,
+                    args.iterations
+                )
             )
         }
         println!();
