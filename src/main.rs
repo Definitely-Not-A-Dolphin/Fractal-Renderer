@@ -3,6 +3,7 @@ use sap::{Argument, Parser};
 use std::time::Instant;
 
 // A fractal is defined by its function and its clause
+#[derive(Clone, Copy)]
 pub struct Fractal {
     pub function: fn(CC<f64>, CC<f64>) -> CC<f64>,
     pub clause: fn(CC<f64>, CC<f64>) -> bool,
@@ -19,7 +20,7 @@ struct Args {
     debug: bool,
 }
 
-fn iterator(numbers: [CC<f64>; 2], fractal: &Fractal, debug: bool, iterations: u32) -> String {
+fn iterator(numbers: [CC<f64>; 2], fractal: Fractal, debug: bool, iterations: u32) -> String {
     let [c0, c1] = numbers;
     let [mut z0, mut z1] = numbers;
 
@@ -178,7 +179,8 @@ fn main() {
                         CC::<f64>::new(real_f64, imaginary_f64) / resolution_f64,
                         CC::<f64>::new(real_f64, imaginary_f64 + 1f64) / resolution_f64,
                     ],
-                    &args.fractal,
+                    // Cloning is faster, somehow
+                    args.fractal.clone(),
                     args.debug,
                     args.iterations
                 )
