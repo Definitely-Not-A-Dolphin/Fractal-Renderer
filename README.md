@@ -23,7 +23,6 @@ cargo run --
 
 $$
 I(n + 1, c) = I(n, c)^2 + c \newline
-
 I(0, c) = c
 $$
 
