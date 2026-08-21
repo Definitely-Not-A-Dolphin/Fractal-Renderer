@@ -1,12 +1,12 @@
-use ccmath::CC;
+use num_complex::{Complex64, ComplexFloat};
 use sap::{Argument, Parser};
 use std::time::Instant;
 
 // A fractal is defined by its function and its clause
 #[derive(Clone, Copy)]
 pub struct Fractal {
-    pub function: fn(CC<f64>, CC<f64>) -> CC<f64>,
-    pub clause: fn(CC<f64>, CC<f64>) -> bool,
+    pub function: fn(Complex64, Complex64) -> Complex64,
+    pub clause: fn(Complex64, Complex64) -> bool,
 }
 
 struct Args {
@@ -20,7 +20,7 @@ struct Args {
     debug: bool,
 }
 
-fn iterator(numbers: [CC<f64>; 2], fractal: Fractal, debug: bool, iterations: u32) -> String {
+fn iterator(numbers: [Complex64; 2], fractal: Fractal, debug: bool, iterations: u32) -> String {
     let [c0, c1] = numbers;
     let [mut z0, mut z1] = numbers;
 
@@ -59,27 +59,27 @@ fn fractal_matcher(fractal: String) -> Fractal {
             clause: |z, _| z.abs() <= 3f64,
         },
         "julia" => Fractal {
-            function: |z, _| CC::cos(z),
+            function: |z, _| Complex64::cos(z),
             clause: |z, _| z.abs() <= 3f64,
         },
         "spirals" => Fractal {
-            function: |z, _| CC::ln(1f64 + z.powi(2)),
+            function: |z, _| Complex64::ln(1f64 + z.powi(2)),
             clause: |z, _| z.abs() <= 1f64,
         },
         "crab" => Fractal {
-            function: |z, _| CC::powc(z, 1f64 - z),
+            function: |z, _| Complex64::powc(z, 1f64 - z),
             clause: |z, _| z.abs() <= 1f64,
         },
         "singularity" => Fractal {
-            function: |z, c| CC::exp(c.powi(2) + z.powi(2)),
+            function: |z, c| Complex64::exp(c.powi(2) + z.powi(2)),
             clause: |z, _| z.abs() <= 1f64,
         },
         "singularity-cubed" => Fractal {
-            function: |z, c| CC::exp(c.powi(3) + z.powi(3)),
+            function: |z, c| Complex64::exp(c.powi(3) + z.powi(3)),
             clause: |z, _| z.abs() <= 1f64,
         },
         _ => Fractal {
-            function: |z, c| CC::arctanh(1f64 / z + 1f64 / c),
+            function: |z, c| Complex64::atanh(1f64 / z + 1f64 / c),
             clause: |z, _| z.abs() <= 1f64,
         },
     }
@@ -104,12 +104,12 @@ fn main() {
     while let Some(arg) = parser.forward().unwrap() {
         match arg {
             Argument::Long("fractal") => {
-                if let Some(fractal) = parser.value() {
+                if let Some(fractal) = parser.value().unwrap() {
                     args.fractal = fractal_matcher(fractal);
                 }
             }
             Argument::Long("real-start") => {
-                if let Some(real_start) = parser.value() {
+                if let Some(real_start) = parser.value().unwrap() {
                     args.real_start = match real_start.parse::<f64>() {
                         Ok(real_start) => real_start,
                         Err(e) => panic!("Invalid argument for real_start: {}", e),
@@ -117,7 +117,7 @@ fn main() {
                 }
             }
             Argument::Long("real-end") => {
-                if let Some(real_end) = parser.value() {
+                if let Some(real_end) = parser.value().unwrap() {
                     args.real_end = match real_end.parse::<f64>() {
                         Ok(real_end) => real_end,
                         Err(e) => panic!("Invalid argument for real_end: {}", e),
@@ -125,7 +125,7 @@ fn main() {
                 }
             }
             Argument::Long("imaginary-start") => {
-                if let Some(imaginary_start) = parser.value() {
+                if let Some(imaginary_start) = parser.value().unwrap() {
                     args.imaginary_start = match imaginary_start.parse::<f64>() {
                         Ok(imaginary_start) => imaginary_start,
                         Err(e) => panic!("Invalid argument for complex_start: {}", e),
@@ -133,7 +133,7 @@ fn main() {
                 }
             }
             Argument::Long("imaginary-end") => {
-                if let Some(imaginary_end) = parser.value() {
+                if let Some(imaginary_end) = parser.value().unwrap() {
                     args.imaginary_end = match imaginary_end.parse::<f64>() {
                         Ok(imaginary_end) => imaginary_end,
                         Err(e) => panic!("Invalid argument for complex_end: {}", e),
@@ -141,7 +141,7 @@ fn main() {
                 }
             }
             Argument::Long("resolution") => {
-                if let Some(resolution) = parser.value() {
+                if let Some(resolution) = parser.value().unwrap() {
                     args.resolution = match resolution.parse::<i64>() {
                         Ok(resolution) => resolution,
                         Err(e) => panic!("Invalid argument for resolution: {}", e),
@@ -149,7 +149,7 @@ fn main() {
                 }
             }
             Argument::Long("iterations") => {
-                if let Some(iterations) = parser.value() {
+                if let Some(iterations) = parser.value().unwrap() {
                     args.iterations = match iterations.parse::<u32>() {
                         Ok(iterations) => iterations,
                         Err(e) => panic!("Invalid argument for resolution: {}", e),
@@ -176,8 +176,8 @@ fn main() {
                 "{}",
                 iterator(
                     [
-                        CC::<f64>::new(real_f64, imaginary_f64) / resolution_f64,
-                        CC::<f64>::new(real_f64, imaginary_f64 + 1f64) / resolution_f64,
+                        Complex64::new(real_f64, imaginary_f64) / resolution_f64,
+                        Complex64::new(real_f64, imaginary_f64 + 1f64) / resolution_f64,
                     ],
                     // Cloning is faster, somehow
                     args.fractal.clone(),

@@ -4,5 +4,5 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-ccmath = "1.0.0"
-sap = "0.0.7"
+num-complex = "0.4.6"
+sap = "0.2.0"
