@@ -1,24 +1,7 @@
+use fractal_renderer::{Args, Fractal};
 use num_complex::{Complex64, ComplexFloat};
 use sap::{Argument, Parser};
 use std::time::Instant;
-
-// A fractal is defined by its function and its clause
-#[derive(Clone, Copy)]
-pub struct Fractal {
-  pub function: fn(Complex64, Complex64) -> Complex64,
-  pub clause: fn(Complex64, Complex64) -> bool,
-}
-
-struct Args {
-  fractal: Fractal,
-  real_start: f64,
-  real_end: f64,
-  imaginary_start: f64,
-  imaginary_end: f64,
-  iterations: u32,
-  resolution: i64,
-  debug: bool,
-}
 
 fn iterator(numbers: [Complex64; 2], fractal: Fractal, debug: bool, iterations: u32) -> String {
   let [c0, c1] = numbers;
