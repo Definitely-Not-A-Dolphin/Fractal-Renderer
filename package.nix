@@ -12,10 +12,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
     owner = "Definitely-Not-A-Dolphin";
     repo = "Fractal-Renderer";
     tag = finalAttrs.version;
-    hash = "sha256-xAjn0fGdamcH82scAemXJYkkfr6ew11HqGAA7mM1N6k=";
+    hash = "sha256-VYNDfirVln7zLNqQBThPDBzPLcX414XcdBQ0iOFziO0=";
   };
 
-  cargoHash = "sha256-gxnxcMWXcaueL+gSbjIaYbomJ70Znatlwq4ER5+5zoo=";
+  cargoHash = "sha256-UQJ3gKYyXHS3IgaLHAqF/PM2Hy/8g7vJxfb7bFZsJBA=";
 
   meta = {
     description = "Render certain fractals in a terminal";
