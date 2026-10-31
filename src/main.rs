@@ -1,6 +1,6 @@
+use args::parse_arguments;
 use fractal_renderer::Fractal;
 use num_complex::Complex64;
-use args::parse_arguments;
 use std::time::Instant;
 
 mod args;
@@ -35,24 +35,23 @@ fn iterator(numbers: [Complex64; 2], fractal: Fractal, debug: bool, iterations: 
 
 fn main() {
   let args = parse_arguments();
-
+  let resolution = args.resolution as f64;
   let now = Instant::now();
-  let real_interval = ((args.real_start * args.resolution as f64) as i32)
-    ..=((args.real_end * args.resolution as f64) as i32);
-  let imag_interval = ((-args.imag_end * args.resolution as f64) as i32)
-    ..=((-args.imag_start * args.resolution as f64) as i32);
+  let real_interval =
+    ((args.real_start * resolution) as i32)..=((args.real_end * resolution) as i32);
+  let imag_interval =
+    ((-args.imag_end * resolution) as i32)..=((-args.imag_start * resolution) as i32);
 
   for imag in imag_interval.step_by(2) {
     for real in real_interval.clone() {
-      let real_f64 = real as f64;
-      let imag_f64 = imag as f64;
-      let resolution_f64 = args.resolution as f64;
+      let real = real as f64;
+      let imag = imag as f64;
       print!(
         "{}",
         iterator(
           [
-            Complex64::new(real_f64, imag_f64) / resolution_f64,
-            Complex64::new(real_f64, imag_f64 + 1f64) / resolution_f64,
+            Complex64::new(real, imag) / resolution,
+            Complex64::new(real, imag + 1f64) / resolution
           ],
           args.fractal,
           args.debug,
@@ -64,7 +63,9 @@ fn main() {
   }
 
   println!(
-    "Took {} millis\nTook {} micros\nTook {} nanos",
+    "Took {} millis
+    Took {} micros
+    Took {} nanos",
     now.elapsed().as_millis(),
     now.elapsed().as_micros(),
     now.elapsed().as_nanos()
