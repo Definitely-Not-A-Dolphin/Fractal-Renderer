@@ -5,14 +5,14 @@ Render fractials in the terminal
 ## How to run the program
 
 ```bash
-cargo run --
-  --real-start=<start of real interval>
-  --real-end=<end of real interval>
-  --imaginary-start=<start of imaginary interval>
-  --imaginary-end=<end of imaginary interval>
-  --resolution=<resolution of image>
-  --iterations=<amount of times the function should be iterated>
-  --fractal=<fractal name>
+cargo run -- \
+  --real-start=<start of real interval> \
+  --real-end=<end of real interval> \
+  --imag-start=<start of imaginary interval> \
+  --imag-end=<end of imaginary interval> \
+  --resolution=<resolution of image> \
+  --iterations=<amount of times the function should be iterated> \
+  --fractal=<fractal name> 
 ```
 
 `resolution` will increase the size of the image, so in order to maintain the same size, use this rule of thumb: when multiplying the `resolution` with a factor of $n$, divide the values of the intervals by $n$.
